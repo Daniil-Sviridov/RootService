@@ -16,7 +16,7 @@ namespace SampleService.Controllers
         {
             _logger = logger;
             _httpClientFactory = httpClientFactory;
-            RootServiceClient _rootServiceClient = new RootServiceClient("http://localhost:5202", _httpClientFactory.CreateClient());
+            RootServiceClient _rootServiceClient = new RootServiceClient("http://localhost:5202", _httpClientFactory.CreateClient("RootServiceClient"));
         }
 
         [HttpGet(Name = "GetWeatherForecast")]

@@ -1,3 +1,5 @@
+using SampleService.Service;
+
 namespace SampleService
 {
     public class Program
@@ -8,9 +10,14 @@ namespace SampleService
 
             // Add services to the container.
 
-            builder.Services.AddHttpClient("RootServiceClient", client =>
+            /*builder.Services.AddHttpClient("RootServiceClient", client =>
             {
                 
+            });*/
+
+            builder.Services.AddHttpClient<IRootServiceClient, RootServiceClient>("RootServiceClient", client =>
+            {
+
             });
 
             builder.Services.AddControllers();
