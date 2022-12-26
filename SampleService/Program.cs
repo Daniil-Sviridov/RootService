@@ -1,3 +1,4 @@
+using Polly;
 using SampleService.Service;
 
 namespace SampleService
@@ -18,7 +19,13 @@ namespace SampleService
             builder.Services.AddHttpClient<IRootServiceClient, RootServiceClient>("RootServiceClient", client =>
             {
 
-            });
+            }).AddTransientHttpErrorPolicy(configurePolicy => configurePolicy.WaitAndRetryAsync(retryCount: 3, sleepDurationProvider: (count) => TimeSpan.FromSeconds(2*count), onRetry: (respons, sleepDuration, count, context) => { 
+                var logger = builder.Services.BuildServiceProvider().GetService<ILogger<Program>>();
+
+                logger.LogError(respons.Exception != null ? respons.Exception 
+                    : new Exception($"\n{respons.Result.StatusCode}: {respons.Result.RequestMessage}"), 
+                    $"Count {count} RootService request exception") ;
+            }));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
