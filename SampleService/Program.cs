@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.HttpLogging;
+using NLog.Web;
 using Polly;
 using SampleService.Service;
 
@@ -15,6 +17,21 @@ namespace SampleService
             {
                 
             });*/
+            builder.Services.AddHttpLogging(loggin =>
+            {
+                loggin.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
+                loggin.ResponseBodyLogLimit = 4096;
+                loggin.RequestBodyLogLimit = 4096;
+                loggin.ResponseHeaders.Add("Autorization");
+                loggin.ResponseHeaders.Add("X-Real-IP");
+                loggin.ResponseHeaders.Add("X-Forwarded-For");
+            });
+
+            builder.Host.ConfigureLogging(logg =>
+            {
+                logg.ClearProviders();
+                logg.AddConsole();
+            }).UseNLog(new NLogAspNetCoreOptions() { RemoveLoggerFactoryFilter = true });
 
             builder.Services.AddHttpClient<IRootServiceClient, RootServiceClient>("RootServiceClient", client =>
             {
@@ -45,6 +62,7 @@ namespace SampleService
 
             app.UseAuthorization();
 
+            app.UseHttpLogging();
 
             app.MapControllers();
 
